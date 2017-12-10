@@ -1,0 +1,34 @@
+O primeiro NOUN é o AGENT
+
+O verbo é a ACTION
+
+No caso de dois verbos (ROOT, AUX) considerar a ROOT como ACTION
+
+O próximo NOUN sendo uma pessoa pode ser: PATIENT
+
+O próximo NOUN não sendo uma pessoa, pode ser: PATIENT, LOC_TARGET, INSTRUMENT
+
+Todo DET pode ser ignorado, dentre: (o, a, um, uma)
+
+Todo ADP pode ser: LOC_PREP, MAS pode ser ignorado, dentre: (de)
+
+Todo ADV pode ser: ADVERB
+
+ADP:
+	'com' -> aumenta probabilidade do proximo NOUN ser um INSTRUMENT
+	'na', 'no' -> aumenta probabilidade do proximo NOUN ser um LOC_TARGET
+	'de', 'para' -> verifica a entidade, caso não tenha certeza (PERSON / LOCATION), marca PERSON 
+
+Todo PRON é inútil
+
+[COMO USAR AS DEPENDENCIAS DAS PALAVRAS - ARCOS]
+
+REPOSTA:
+
+	*Finalizar com a pontuação '?'*
+	'Quem' - PATIENT / AGENT / BENEFICIATY ('De quem', 'Para quem')
+	'O que' - PATIENT
+	'Com' - INSTRUMENT
+	'Como' - ADVERB
+	'Onde' - LOC_TARGET ('Para onde')
+	Nenhum - COUNT(*)
