@@ -1,6 +1,3 @@
- 
-
-
 PEGA O CARA (S)
 
 	SE FOR NOUM:
@@ -23,8 +20,7 @@ PEGA O CARA (S)
 				SE ENTIDADE(S) == PERSON
 					(3 EXCLUIDO)
 				ELSE
-					LOC_TARGET
-			
+					LOC_TARGET		
 
 	SE S FOR VERB
 		SE FOR ROOT
@@ -32,8 +28,3 @@ PEGA O CARA (S)
 
 	SE S FOR ADV
 		ENTÃO ADV
-
-	
-
-
-

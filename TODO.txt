@@ -1,7 +1,7 @@
 TODO:
 
 1. Buscar mais frases (teste e treinamento)
-2. Melhorar o modelo proposto
-3. Implementar
+2. Melhorar o modelo proposto PROGRESS
+3. Implementar OK
 4. Avaliar
 5. Relatório
