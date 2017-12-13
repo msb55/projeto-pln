@@ -1,0 +1,31 @@
+answer_yesOrNot = true;
+answer_isPerson;
+answer_isLocal;
+answer_isModo;
+answer_multiple;
+answer_instrument;
+
+GET LAST TOKEN 
+	SE É "?" ENTÃO É PERGUNTA
+
+		IF(VERB) AÇÃO REALIZADA
+		IF("QUEM")
+			answer_isPerson = true;
+		IF(NOUM)
+			IF(POS(NOUM) > POS(VERB)) 
+				PACIENTE
+			ELSE
+				AGENTE
+
+		IF("ONDE")
+			answer_isLocal = true;
+
+		IF("COMO")
+			answer_isModo = true;	#ADV ADJ
+
+		IF(" O QUE") 
+			PACIENTE OU BENEFICIARIO
+		IF("COM") 
+			answer_instrument = true
+
+
