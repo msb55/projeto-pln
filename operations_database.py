@@ -1,6 +1,8 @@
 import database
 import sqlite3
 
+ANSWER = 'ANSWER'
+
 def insert_object(obj):
     # conectando...
     conn = sqlite3.connect(database.DATABASE_NAME)
@@ -27,22 +29,26 @@ def insert_event(evento):
     # definindo um cursor
     cursor = conn.cursor()
 
-    dependencies = get_dependencies({database.AGENT: evento[database.AGENT],database.PATIENT: evento[database.PATIENT],database.BENEFICIATY: evento[database.BENEFICIATY],database.LOC_TARGET: evento[database.LOC_TARGET],database.INSTRUMENT: evento[database.INSTRUMENT]})
+    dependencies = {}
+    for key, value in evento.items():
+        if key in [database.AGENT, database.PATIENT, database.BENEFICIATY, database.LOC_TARGET, database.INSTRUMENT]:
+            dependencies[key] = value
+
+    dependencies = get_dependencies(dependencies)
+
+    for key, value in dependencies.items():
+        evento[key] = value
 
     columns = ()
     fields = ()
     values = ()
-    for key, value in dependencies.items():
-        if value > 0:
-            columns += (key,)
-            fields += ('?',)
-            values += (value,)
+    for key, value in evento.items():
+        columns += (key,)
+        fields += ('?',)
+        values += (value,)
 
     # inserindo dados na tabela
-    cursor.execute("""
-    INSERT INTO event (ACTION, TENSE, LOC_PREP, ADVERB, ADJECTIVE, ADP_AGENT, ADP_PATIENT, ADP_LOC, """+','.join(columns)+""")
-    VALUES (?,?,?,?,?,?,?,?,"""+','.join(fields)+""")
-    """,(evento[database.ACTION], evento[database.TENSE], evento[database.LOC_PREP], evento[database.ADVERB], evento[database.ADJECTIVE], evento[database.ADP_AGENT], evento[database.ADP_PATIENT], evento[database.ADP_LOC]) + values)
+    cursor.execute("""INSERT INTO event ("""+','.join(columns)+""") VALUES ("""+','.join(fields)+""")""",values)
 
     print("OK")
 
@@ -74,15 +80,97 @@ def get_dependencies(dependencies):
         else:
             ids[key] = 0
     
-    print(ids)
     conn.close()
 
     return ids
 
-# init_db()
-# insert_object({NAME:'Ananda', TYPE:''})
-# get_all("lic")
-# get_dependencies({'AGENT':"Marcos", 'PATIENT': "Vitor", 'BENEFICIATY': ''})
-inserir = {'ACTION': 'dormir', 'TENSE': 'passado', 'LOC_PREP':'de', 'ADVERB':'debaixo', 'ADJECTIVE':'', 'ADP_AGENT':'', 'ADP_PATIENT':'', 'ADP_LOC':'','AGENT':'João','PATIENT':'','BENEFICIATY':'','LOC_TARGET':'árvore','INSTRUMENT':''}
+def answer_processing(query):
+    # conectando...
+    conn = sqlite3.connect(database.DATABASE_NAME)
+    # definindo um cursor
+    cursor = conn.cursor()
 
-insert_event(inserir)
+    answer_type = query[ANSWER]
+
+    dependencies = {}
+    for key, value in query.items():
+        if key in [database.AGENT, database.PATIENT, database.BENEFICIATY, database.LOC_TARGET, database.INSTRUMENT]:
+            dependencies[key] = value
+
+    print(dependencies)
+    dependencies = get_dependencies(dependencies)
+    print(dependencies)
+
+    for key, value in dependencies.items():
+        query[key] = value
+    where = ()
+    values = ()
+    query.pop(ANSWER)
+    print(query)
+    for key, value in query.items():
+        where += (key+" =?",)
+        values += (value,)
+
+    # where = ' AND '.join(where)
+
+    sql = ""
+    if answer_type == 0:
+        pass
+    elif answer_type == 1: # Quem
+        where = ' AND '.join(where)
+        if not database.AGENT in query:
+            sql = """SELECT """+database.AGENT+""" FROM event WHERE """+where
+        elif not database.PATIENT in query:
+            sql = """SELECT """+database.PATIENT+""" FROM event WHERE """+where
+        elif not database.BENEFICIATY in query:
+            sql = """SELECT """+database.BENEFICIATY+""" FROM event WHERE """+where
+    elif answer_type == 2: # Onde
+        aux_values = values
+        count = 0
+        for i in values:
+            print(i)
+            if isinstance(i, str) and i.lower() == "onde":
+                a = list(aux_values)
+                a.remove(i)
+                aux_values = tuple(a)
+                b = list(where)
+                b.pop(count)
+                where = tuple(b)
+            count += 1
+
+        where = ' AND '.join(where)
+        values = aux_values
+        sql = """SELECT """+database.LOC_TARGET+""" FROM event WHERE """+where
+    elif answer_type == 3: # Como
+        aux_values = values
+        count = 0
+        for i in values:
+            print(i)
+            if isinstance(i, str) and i.lower() == "como":
+                a = list(aux_values)
+                a.remove(i)
+                aux_values = tuple(a)
+                b = list(where)
+                b.pop(count)
+                where = tuple(b)
+            count += 1
+
+        where = ' AND '.join(where)
+        values = aux_values
+        sql = """SELECT """+database.ADJECTIVE+""", """+database.ADVERB+""" FROM event WHERE """+where
+    elif answer_type == 4:
+        pass
+    elif answer_type == 5:
+        pass
+    elif answer_type == 6:
+        pass
+    
+    print(sql)
+    print(values)
+    cursor.execute(sql, values)
+    retorno = cursor.fetchall()
+    print(retorno)
+
+# inserir = {'ACTION': 'dormir', 'TENSE': 'passado', 'LOC_PREP':'de', 'ADVERB':'debaixo', 'ADJECTIVE':'', 'ADP_AGENT':'', 'ADP_PATIENT':'', 'ADP_LOC':'','AGENT':'João','PATIENT':'','BENEFICIATY':'','LOC_TARGET':'árvore','INSTRUMENT':''}
+# insert_event(inserir)
+
