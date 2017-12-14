@@ -16,7 +16,7 @@ def insert_object(obj):
     """,(obj[database.NAME],))
 
     lastid = cursor.lastrowid
-
+    print(obj[database.NAME], "não foi encontrado nos registros. Adicionado!")
     # gravando no bd
     conn.commit()
     conn.close()
@@ -84,6 +84,21 @@ def get_dependencies(dependencies):
 
     return ids
 
+def get_object_by_id(id_object):
+    # conectando...
+    conn = sqlite3.connect(database.DATABASE_NAME)
+    # definindo um cursor
+    cursor = conn.cursor()
+
+    cursor.execute("""SELECT """+database.NAME+""" FROM object WHERE id = ?""",(id_object,))
+
+    resultado = cursor.fetchall()
+
+    if len(resultado) == 0:
+        raise "Objeto não encontrado!"
+
+    return resultado[0][0]
+
 def answer_processing(query):
     # conectando...
     conn = sqlite3.connect(database.DATABASE_NAME)
@@ -130,7 +145,6 @@ def answer_processing(query):
         aux_values = values
         count = 0
         for i in values:
-            print(i)
             if isinstance(i, str) and i.lower() == "onde":
                 a = list(aux_values)
                 a.remove(i)
@@ -147,7 +161,6 @@ def answer_processing(query):
         aux_values = values
         count = 0
         for i in values:
-            print(i)
             if isinstance(i, str) and i.lower() == "como":
                 a = list(aux_values)
                 a.remove(i)
@@ -164,7 +177,6 @@ def answer_processing(query):
         aux_values = values
         count = 0
         for i in values:
-            print(i)
             if isinstance(i, str) and i.lower() == "com":
                 a = list(aux_values)
                 a.remove(i)
@@ -194,6 +206,23 @@ def answer_processing(query):
     cursor.execute(sql, values)
     retorno = cursor.fetchall()
     print(retorno)
+    resposta = []
+    for tup in retorno:
+        for t in tup:
+            if not t is None:
+                if isinstance(t, int):
+                    obj = get_object_by_id(t)
+                    if not obj in resposta:
+                        resposta.append(get_object_by_id(t))
+                elif not t in resposta:
+                    resposta.append(t)
+
+    if len(resposta) == 2:
+        resposta = ' e '.join(tuple(resposta))
+    else:
+        resposta = ', '.join(tuple(resposta))
+
+    return resposta
 
 # inserir = {'ACTION': 'dormir', 'TENSE': 'passado', 'LOC_PREP':'de', 'ADVERB':'debaixo', 'ADJECTIVE':'', 'ADP_AGENT':'', 'ADP_PATIENT':'', 'ADP_LOC':'','AGENT':'João','PATIENT':'','BENEFICIATY':'','LOC_TARGET':'árvore','INSTRUMENT':''}
 # insert_event(inserir)

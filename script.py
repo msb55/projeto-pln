@@ -16,7 +16,7 @@ LOC_TARGET = 'LOC_TARGET'
 INSTRUMENT = 'INSTRUMENT'
 ADVERB = 'ADVERB'
 ADJECTIVE = 'ADJECTIVE'
-ADP_AGENTE = 'ADP_AGENTE'
+ADP_AGENT = 'ADP_AGENT'
 ADP_PATIENT = 'ADP_PATIENT'
 ADP_LOC = 'ADP_LOC'
 
@@ -94,7 +94,7 @@ def witch_adp(name):
     global query
     if AGENT in query:
         if query[AGENT] == clear_str(name):
-            return ADP_AGENTE
+            return ADP_AGENT
     if PATIENT in query:
         if query[PATIENT] == clear_str(name):
             return ADP_PATIENT
@@ -109,8 +109,8 @@ def semantic(text):
 
     # pergunta
     if text[-1] == "?":
+        print("É uma pergunta.", text)
         make_query(text, True)
-        print("pergunta")
         answer_type = 0
         # answer_yesOrNo = 0
         # answer_isPerson = 1
@@ -120,7 +120,7 @@ def semantic(text):
         # answer_isUndefined = 5
         # answer_isParaQuem = 6
 
-        if text.lower().startswith("quem") or text.lower().startswith("com quem"):
+        if text.lower().startswith("quem") or text.lower().startswith("com quem") or text.lower().startswith("de quem"):
             answer_type = 1
         elif text.lower().startswith("onde") or text.lower().startswith("para onde"):
             answer_type = 2
@@ -136,9 +136,9 @@ def semantic(text):
             answer_type = 0
         
         query[ANSWER] = answer_type
-        operations_database.answer_processing(query)
+        print("resposta:",operations_database.answer_processing(query))
     else:
-        print("afirmação")
+        print("É uma afirmação.", text)
         make_query(text, False)
         operations_database.insert_event(query)   
 
@@ -164,44 +164,61 @@ def make_query(text, isanswer):
             parent = syntax.tokens[i_parent]
             
             if pos_tag[parent.part_of_speech.tag] == "VERB" and i_parent > i:
-                query[AGENT] = clear_str(token.text.content)
+                if token.lemma != '':
+                    query[AGENT] = clear_str(token.lemma)
+                else:
+                    query[AGENT] = clear_str(token.text.content)
 
             elif pos_tag[parent.part_of_speech.tag] == "VERB" and i_parent < i:
                 query[PATIENT] = clear_str(token.text.content)
 
             elif pos_tag[parent.part_of_speech.tag] == "VERB":
                 pessoa = terceiro_excluido()
-                query[pessoa] = clear_str(token.text.content)
+                if token.lemma != '':
+                    query[pessoa] = clear_str(token.lemma)
+                else:
+                    query[pessoa] = clear_str(token.text.content)
             
             elif pos_tag[parent.part_of_speech.tag] == "PRON" and isanswer:
                 pessoa = terceiro_excluido()
-                query[pessoa] = clear_str(token.text.content)
+                if token.lemma != '':
+                    query[pessoa] = clear_str(token.lemma)
+                else:
+                    query[pessoa] = clear_str(token.text.content)
 
             elif pos_tag[parent.part_of_speech.tag] == "ADP":
                 i_grandparent = parent.dependency_edge.head_token_index
                 grandparent = syntax.tokens[i_grandparent]
 
                 if pos_tag[grandparent.part_of_speech.tag] == "NOUN":
-                    query[witch_adp(grandparent.text.content)] = clear_str(token.text.content)
+                    if token.lemma != '':
+                        query[witch_adp(grandparent.text.content)] = clear_str(token.lemma)
+                    else:
+                        query[witch_adp(grandparent.text.content)] = clear_str(token.text.content)
 
                 elif parent.text.content.lower() == "com":
                     if entity_type[find_entity(entities, token.text.content)] == "PERSON":
-                        pessoa = terceiro_excluido()                   
-                        query[pessoa] = clear_str(token.text.content)
+                        pessoa = terceiro_excluido()
+                        if token.lemma != '':
+                            query[pessoa] = clear_str(token.lemma)
+                        else:
+                            query[pessoa] = clear_str(token.text.content)
                     else:
-                        query[INSTRUMENT] = clear_str(token.text.content)
+                        if token.lemma != '':
+                            query[INSTRUMENT] = clear_str(token.lemma)
+                        else:
+                            query[INSTRUMENT] = clear_str(token.text.content)
 
                 elif parent.text.content.lower() in ("na","no","da","do","em"):
                     query[LOC_TARGET] = clear_str(token.text.content)
                     query[LOC_PREP] = clear_str(parent.text.content)
 
                 elif parent.text.content.lower() in ("de","para","ao","a","à"):
-                    if entity_type[find_entity(entities, token.text.content)] == "PERSON":
-                        pessoa = terceiro_excluido()
-                        query[pessoa] = clear_str(token.text.content)
+                    pessoa = terceiro_excluido()
+                    if token.lemma != '':
+                        query[pessoa] = clear_str(token.lemma)
                     else:
-                        query[LOC_TARGET] = clear_str(token.text.content)
-                        query[LOC_PREP] = clear_str(parent.text.content)
+                        query[pessoa] = clear_str(token.text.content)
 
         elif pos_tag[token.part_of_speech.tag] == "VERB":
             if token.dependency_edge.label == 54:
@@ -209,7 +226,11 @@ def make_query(text, isanswer):
             elif isanswer and not ACTION in query:
                 query[ACTION] = clear_str(token.lemma)
             else:
-                query[terceiro_excluido()] = clear_str(token.text.content)
+                label = terceiro_excluido()
+                if token.lemma != '':
+                    query[label] = clear_str(token.lemma)
+                else:
+                    query[label] = clear_str(token.text.content)
 
         elif pos_tag[token.part_of_speech.tag] == "ADV":
             query[ADVERB] = clear_str(token.text.content)
@@ -220,8 +241,26 @@ def make_query(text, isanswer):
 
 # test = ["João come rapidamente","João come graciosamente","João beijou Maria no parque","João beijou Maria debaixo da mesa","João comeu sorvete com uma colher","João comeu galinha com um garfo","João dormiu na cama com um travesseiro","João dormiu na cama com Maria","João gosta de cachorros","Maria gosta de gatos","João dormiu debaixo de uma árvore","João infelizmente deu seus gatos para Maria","Maria comeu o sorvete","João comeu sorvete rapidamente no parque com uma colher"]
 # test = ["João dormiu na cama com Maria","João gosta de cachorros","Maria gosta de gatos","João infelizmente deu seus gatos para Maria"]
-# for i in test:
-#     print(i)
-#     semantic(i)
 
-semantic("João gosta de cachorros?")
+
+# test = ["João doou para Maria","João doou para o orfanato", "João viajou para Recife","João beijou Maria no parque","João gosta de cachorros","João comeu sorvete com uma colher","João infelizmente deu seus gatos para Maria", "Maria gosta de gatos"]
+# test = ["João come rapidamente","João come graciosamente", "João beijou Maria debaixo da mesa","João comeu galinha com um garfo","João dormiu na cama com um travesseiro","João dormiu na cama com Maria","João dormiu debaixo de uma árvore", "Maria comeu o sorvete", "João comeu sorvete rapidamente no parque com uma colher"]
+
+# test = ["João come rapidamente","João come graciosamente","João beijou Maria no parque","João beijou Maria debaixo da mesa","João comeu sorvete com uma colher","João comeu galinha com um garfo","João dormiu na cama com um travesseiro","João dormiu na cama com Maria","João gosta de cachorros","Maria gosta de gatos","João dormiu debaixo de uma árvore","João infelizmente deu seus gatos para Maria","Maria comeu o sorvete","João comeu sorvete rapidamente no parque com uma colher","João foi para a casa de Maria","Roberto odeia João","Link comprou presentes para Zelda","Vitor ficou triste com a nota","Vitor ficou triste com Maria","João chorou antes de dormir ","Yone estuda na Unijorge","Maria adora cerveja ","Maria comprou pães na padaria","Ananda foi à feira","Leonardo é um estudante ","Marcos voltou para Irecê","Leonardo dormiu tarde","Lucas digita rápido","Bruno ama filmes da Marvel","Maria está com sede","João ganhou uma bola","Leonardo amou a nova série da Netlix","João viajou para Recife","Renata gosta de Alex","Pablo é um critico ","Hans é um ótimo professor","Jailson foi dormir tarde","Marcela ofereceu carona para Marcos na rodovia ","Leonardo odeia barulhos ","Jailson foi dormir tarde","Marcela ofereceu carona para Marcos na rodovia ","Leonardo odeia barulhos ","Naruto ama Sasuke","Vitor gosta de carnaval ","João comprou um celular para Maria","Leonardo odeia atrasos","Marcos dormiu tranquilamente "]
+# test = ["O pai de Marcos está feliz","Marcos voltou para casa","Leonardo voltou para casa"]
+# test = ["Maria gosta de gatos?","João chorou antes de dormir?","Maria está com sede?","Jailson foi dormir tarde?","Leonardo voltou para casa?","João comeu sorvete com uma colher?","João foi para a casa de Maria?","Leonardo é um estudante?","Pablo é um critico?","João comprou um celular para Maria?","Jailson gosta de sorvete?","Leonardo ama crianças?","Marcos mora em Recife?","Marcos é um estudante?","João gosta de gatos?","João dormiu na cama com uma bicicleta?","João comeu sorvete com uma colher?","Marcos comeu sorvete com uma colher?","Marcela ama João?","Vitor dorme bem?"]
+test = ["Como joão come?","Com quem João dormiu na cama?","Com o que João dormiu?","o que João comeu?","o que Maria adora?","Com o que João comeu a galinha?","Quem Roberto odeia?","Onde Yone estuda?","Como Lucas digita?","O que João ganhou?","De quem Renata gosta?","Onde Marcela ofereceu carona para Marcos?","Para quem Marcela ofereceu carona?","Para quem Marcela ofereceu carona na rua?","Quem Naturo ama?","Quem voltou para casa?","O que Bruno ama?","Onde João dormiu?","Para quem Link comprou presentes?","O que Link comprou para Zelda?","Do que João gosta?","Do que Vitor gosta?","O que Leonardo odeia?","Como Maria está?","Onde Ananda foi?","O que João comprou para Roberto?","O que Marcos ganhou de presente?","O que Leonardo ama em Recife?","Com quem Vitor ficou triste?","Hans é um ótimo professor?"]
+for i in test:
+    # print(i)
+    semantic(i)
+
+# semantic("Com quem João dormiu?")
+
+# while True:
+#     print("Pode dizer :)")
+#     sentenca = input()
+#     if sentenca.lower() == "sair":
+#         break
+#     resposta = semantic(sentenca)
+#     print(resposta)
+#     print("")
