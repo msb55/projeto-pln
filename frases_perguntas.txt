@@ -1,7 +1,7 @@
 Maria gosta de gatos? #SIM 
 João chorou antes de dormir?
 Maria está com sede?
-Jailson foi dormir tarde?
+Jailson dormiu tarde?
 Leonardo voltou para casa?
 João comeu sorvete com uma colher?
 João foi para a casa de Maria?
@@ -14,7 +14,38 @@ Marcos mora em Recife?
 Marcos é um estudante?
 João gosta de gatos?
 João dormiu na cama com uma bicicleta?
-João comeu sorvete com uma colher?
+João comeu galinha com uma colher?
 Marcos comeu sorvete com uma colher?
 Marcela ama João?
 Vitor dorme bem? #NÃO
+Como joão come?  #rapidamente, # graciosamente
+Com quem João dormiu na cama? # com Maria
+Com o que João dormiu? #  um travesseiro
+o que João comeu? #sorvete #galinha
+o que Maria adora? #cerveja
+Com o que João comeu a galinha? # um garfo
+Quem Roberto odeia? #João
+Onde Yone estuda? #na Unijorge
+Como Lucas digita? #rápido
+O que João ganhou? #um bola
+De quem Renata gosta? #Alex
+Onde Marcela ofereceu carona para Marcos? #na rodovia
+Para quem Marcela ofereceu carona? #Marcos  Leonardo
+Para quem Marcela ofereceu carona na rua? # Leonardo
+Quem Naturo ama? #Sasuke
+Quem voltou para casa? # Marcos Leonardo
+O que Bruno ama? #  filmes da Marvel
+Onde João dormiu? # debaixo de uma arvore
+Para quem Link comprou presentes? #Zelda
+O que Link comprou para Zelda #presentes
+Do que João gosta? #cachorros
+Do que Vitor gosta? #carnaval
+O que Leonardo odeia? #barulhos atrasos
+Como Maria está? #nada
+Onde Ananda foi? #nada
+O que João comprou para Roberto? #nada
+O que Marcos ganhou de presente? #nada
+O que Leonardo ama em Recife? #nada
+Com quem Vitor ficou triste? #MARIA
+Hans é um ótimo professor? #SIM
+
