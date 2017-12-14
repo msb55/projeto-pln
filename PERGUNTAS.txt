@@ -1,0 +1,61 @@
+answer_yesOrNot = true;
+answer_isPerson;
+answer_isLocal;
+answer_isModo;
+answer_multiple;
+answer_instrument;
+
+GET LAST TOKEN 
+	SE É "?" ENTÃO É PERGUNTA
+
+		IF(VERB) AÇÃO REALIZADA
+		IF("QUEM")
+			answer_isPerson = true;
+		IF(NOUM)
+			IF(POS(NOUM) > POS(VERB)) 
+				PACIENTE
+			ELSE
+				AGENTE
+
+		IF("ONDE")
+			answer_isLocal = true;
+
+		IF("COMO")
+			answer_isModo = true;	#ADV ADJ
+
+		IF(" O QUE") 
+			PACIENTE OU BENEFICIARIO
+		IF("COM") 
+			answer_instrument = true
+
+
+
+#PARA QUEM PROCURAR NO BENEFICIARIO E LOCAL
+
+IF TIPO == 1
+	procura o que faltando
+		AGENTE
+		PACIENTE
+		BENEFICIARIO
+	IF AGENTE == VAZIO
+		GET PACIENTE COM AS INFORMAÇÕES PREECHIDAS
+
+IF TIPO == 2
+	GET LOCAL, LOC_PREP COM AS INFORMAÇOES PREECHIDAS
+
+IF TIPO == 3
+	GET ADJ, ADV COM AS INFORMAÇÕES PREECHIDAS
+
+IF TIPO == 4
+	GET INSTRUMENTO 
+
+IF TIPO == 5
+	3º EXCLUIDO
+
+IF TIPO == 6
+	BENEFICIARIO
+
+TIPO == 0
+	FAZ PESQUISA
+	SE ROW COUNT == 0 NÃO
+	ELSE SIM
