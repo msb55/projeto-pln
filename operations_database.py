@@ -115,6 +115,8 @@ def answer_processing(query):
 
     sql = ""
     if answer_type == 0:
+        where = ' AND '.join(where)
+        sql= """SELECT CASE WHEN COUNT(*) > 0 THEN 'Sim' ELSE 'Não' END FROM event WHERE """ + where
         pass
     elif answer_type == 1: # Quem
         where = ' AND '.join(where)
@@ -158,12 +160,34 @@ def answer_processing(query):
         where = ' AND '.join(where)
         values = aux_values
         sql = """SELECT """+database.ADJECTIVE+""", """+database.ADVERB+""" FROM event WHERE """+where
-    elif answer_type == 4:
-        pass
-    elif answer_type == 5:
-        pass
+    elif answer_type == 4: # Com; Com o que
+        aux_values = values
+        count = 0
+        for i in values:
+            print(i)
+            if isinstance(i, str) and i.lower() == "com":
+                a = list(aux_values)
+                a.remove(i)
+                aux_values = tuple(a)
+                b = list(where)
+                b.pop(count)
+                where = tuple(b)
+            count += 1
+
+        where = ' AND '.join(where)
+        values = aux_values
+        sql = """SELECT """+database.INSTRUMENT+""" FROM event WHERE """+where
+    elif answer_type == 5: # O que; Do que
+        where = ' AND '.join(where)
+        if not database.AGENT in query:
+            sql = """SELECT """+database.AGENT+""" FROM event WHERE """+where
+        elif not database.PATIENT in query:
+            sql = """SELECT """+database.PATIENT+""" FROM event WHERE """+where
+        elif not database.BENEFICIATY in query:
+            sql = """SELECT """+database.BENEFICIATY+""" FROM event WHERE """+where
     elif answer_type == 6:
-        pass
+        where = ' AND '.join(where)
+        sql = """SELECT """+database.BENEFICIATY+""" FROM event WHERE """+where
     
     print(sql)
     print(values)

@@ -195,7 +195,7 @@ def make_query(text, isanswer):
                     query[LOC_TARGET] = clear_str(token.text.content)
                     query[LOC_PREP] = clear_str(parent.text.content)
 
-                elif parent.text.content.lower() in ("de","para","ao","a","à"):                    
+                elif parent.text.content.lower() in ("de","para","ao","a","à"):
                     if entity_type[find_entity(entities, token.text.content)] == "PERSON":
                         pessoa = terceiro_excluido()
                         query[pessoa] = clear_str(token.text.content)
@@ -205,6 +205,8 @@ def make_query(text, isanswer):
 
         elif pos_tag[token.part_of_speech.tag] == "VERB":
             if token.dependency_edge.label == 54:
+                query[ACTION] = clear_str(token.lemma)
+            elif isanswer and not ACTION in query:
                 query[ACTION] = clear_str(token.lemma)
             else:
                 query[terceiro_excluido()] = clear_str(token.text.content)
@@ -222,4 +224,4 @@ def make_query(text, isanswer):
 #     print(i)
 #     semantic(i)
 
-semantic("Onde João beijou Maria?")
+semantic("João gosta de cachorros?")
