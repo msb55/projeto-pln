@@ -63,5 +63,3 @@ def init_db():
     print('Tabela criada com sucesso.')
 
     conn.close()
-
-# init_db()

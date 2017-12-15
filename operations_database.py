@@ -112,16 +112,16 @@ def answer_processing(query):
         if key in [database.AGENT, database.PATIENT, database.BENEFICIATY, database.LOC_TARGET, database.INSTRUMENT]:
             dependencies[key] = value
 
-    print(dependencies)
+
     dependencies = get_dependencies(dependencies)
-    print(dependencies)
+
 
     for key, value in dependencies.items():
         query[key] = value
     where = ()
     values = ()
     query.pop(ANSWER)
-    print(query)
+
     for key, value in query.items():
         where += (key+" =?",)
         values += (value,)
@@ -201,11 +201,9 @@ def answer_processing(query):
         where = ' AND '.join(where)
         sql = """SELECT """+database.BENEFICIATY+""" FROM event WHERE """+where
     
-    print(sql)
-    print(values)
     cursor.execute(sql, values)
     retorno = cursor.fetchall()
-    print(retorno)
+
     resposta = []
     for tup in retorno:
         for t in tup:
@@ -223,7 +221,3 @@ def answer_processing(query):
         resposta = ', '.join(tuple(resposta))
 
     return resposta
-
-# inserir = {'ACTION': 'dormir', 'TENSE': 'passado', 'LOC_PREP':'de', 'ADVERB':'debaixo', 'ADJECTIVE':'', 'ADP_AGENT':'', 'ADP_PATIENT':'', 'ADP_LOC':'','AGENT':'João','PATIENT':'','BENEFICIATY':'','LOC_TARGET':'árvore','INSTRUMENT':''}
-# insert_event(inserir)
-
